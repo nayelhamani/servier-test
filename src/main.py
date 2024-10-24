@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 from collections import defaultdict
-from src.utils.utils import (
+from utils.utils import (
     lower_strip_df,
     format_date,
     delete_chars,
