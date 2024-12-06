@@ -33,15 +33,36 @@ def json_to_df(filepath):
     return pd.DataFrame(data)
 
 
+def concat_dataframes(dataframes, reset_index=True):
+    """
+    Concatenates a list of DataFrames into a single DataFrame.
+
+    Args:
+        dataframes (list of pd.DataFrame): The list of DataFrames to concatenate.
+        reset_index (bool): If True, resets the index of the concatenated DataFrame. Default is True.
+
+    Returns:
+        pd.DataFrame: The concatenated DataFrame.
+
+    Raises:
+        ValueError: If the input list of DataFrames is empty.
+    """
+    if not dataframes:
+        raise ValueError("The list of DataFrames is empty.")
+    
+    concatenated_df = pd.concat(dataframes, ignore_index=reset_index)
+    return concatenated_df
+
+
 def delete_chars(df):
     """
     Cleans the DataFrame by removing specific unwanted characters and accents.
 
     Args:
-        df (pd.Series): A DataFrame column to clean.
+        df (pd.Dataframe): A DataFrame to clean.
 
     Returns:
-        pd.Series: The cleaned DataFrame column.
+        pd.Dataframe: The cleaned DataFrame.
     """
     df = df.map(lambda s: s.replace("\\xc3\\xb1", "") if isinstance(s, str) else s)
     df = df.map(lambda s: s.replace("\\xc3\\x28", "") if isinstance(s, str) else s)
@@ -66,13 +87,13 @@ def remove_accents(text):
 
 def lower_strip_df(df):
     """
-    Converts all string values in a DataFrame column to lowercase and strips whitespace.
+    Converts all string values in a DataFrame to lowercase and strips whitespace.
 
     Args:
-        df (pd.Series): A DataFrame column to normalize.
+        df (pd.Dataframe): A DataFrame to normalize.
 
     Returns:
-        pd.Series: The normalized DataFrame column.
+        pd.Dataframe: The normalized DataFrame.
     """
     return df.map(lambda s: s.lower().strip() if isinstance(s, str) else s)
 
@@ -88,7 +109,7 @@ def format_date(df, column):
     Returns:
         pd.DataFrame: The DataFrame with the formatted date column.
     """
-    df[column] = pd.to_datetime(df[column], format="mixed").astype(str)
+    df[column] = pd.to_datetime(df[column], format="mixed") #.astype(str)
     return df
 
 
@@ -114,7 +135,6 @@ def consolidate_clinical_trials_df(df):
 
     # Réinitialiser l'index
     df_grouped.reset_index(drop=True, inplace=True)
-
     # Afficher le DataFrame nettoyé et fusionné
     return df_grouped
 
@@ -204,20 +224,14 @@ def merge_dicts(dict1, dict2):
     merged_dict = dict1.copy()
 
     for key, value in dict2.items():
-        if key in merged_dict:
-            if "clinical_trials" in value:
-                merged_dict[key]["clinical_trials"] = value["clinical_trials"]
-
-            if "journal" in value:
-                combined_journal = merged_dict[key]["journal"] + value["journal"]
-                unique_journal = []
-                seen = set()
-                for entry in combined_journal:
-                    identifier = (entry["date_mention"], entry["journal"])
-                    if identifier not in seen:
-                        unique_journal.append(entry)
-                        seen.add(identifier)
-                merged_dict[key]["journal"] = unique_journal
-        else:
-            merged_dict[key] = value
+        merged_dict[key]["clinical_trials"] = value["clinical_trials"]
+        combined_journal = merged_dict[key]["journal"] + value["journal"]
+        unique_journal = []
+        seen = set()
+        for entry in combined_journal:
+            identifier = (entry["date_mention"], entry["journal"])
+            if identifier not in seen:
+                unique_journal.append(entry)
+                seen.add(identifier)
+        merged_dict[key]["journal"] = unique_journal
     return merged_dict

@@ -1,7 +1,9 @@
 import json
 import pandas as pd
+import logging
 from collections import defaultdict
 from utils.utils import (
+    concat_dataframes,
     lower_strip_df,
     format_date,
     delete_chars,
@@ -12,6 +14,15 @@ from utils.utils import (
     find_mentions_in_publications,
     merge_dicts,
 )
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s', 
+    datefmt='%Y-%m-%d %H:%M:%S' 
+)
+
+# Utilisation du logger
+logger = logging.getLogger(__name__)
 
 RESOURCE_FOLDER = "resources"
 
@@ -27,12 +38,27 @@ def start_pipeline():
     Returns:
         None
     """
+    logger.info("Pipeline started...")
+
+    logger.info("Converting files to DataFrames...")
     drugs_df, pubmed_df, clinical_trials_df = dfs_from_files()
+    logger.info("DataFrames created succesfuly.")
+
+    logger.info("Normalization of DataFrames...")
     drugs_df, pubmed_df, clinical_trials_df = normalize_dfs(
         drugs_df, pubmed_df, clinical_trials_df
     )
+    logger.info("DataFrames normalized.")
+
+    logger.info("Generating mentions dict...")
     mentions_dict = generate_mentions_dict(drugs_df, pubmed_df, clinical_trials_df)
+    logger.info("Mentions dict generated.")
+
+    logger.info("Writing mentions dict to JSON file...")
     write_dict_to_json(mentions_dict, "src/result/drug_mentions_graph.json")
+    logger.info("Mentions dict JSON file created.")
+
+    logger.info("Pipeline finished...")
 
 
 def dfs_from_files():
@@ -46,11 +72,12 @@ def dfs_from_files():
             - clinical_trials_df: DataFrame containing clinical trials data.
     """
     drugs_df = pd.read_csv(f"{RESOURCE_FOLDER}/drugs.csv")
+    clinical_trials_df = pd.read_csv(f"{RESOURCE_FOLDER}/clinical_trials.csv")
     pubmed_df1 = pd.read_csv(f"{RESOURCE_FOLDER}/pubmed.csv")
     pubmed_df2 = json_to_df(f"{RESOURCE_FOLDER}/pubmed.json")
-    clinical_trials_df = pd.read_csv(f"{RESOURCE_FOLDER}/clinical_trials.csv")
-    pubmed_df = pd.concat([pubmed_df1, pubmed_df2]).reset_index(drop=True)
+    pubmed_df = concat_dataframes([pubmed_df1, pubmed_df2])
     return drugs_df, pubmed_df, clinical_trials_df
+
 
 
 def normalize_dfs(drugs_df, pubmed_df, clinical_trials_df):
@@ -77,6 +104,7 @@ def normalize_dfs(drugs_df, pubmed_df, clinical_trials_df):
 
     pubmed_df["article_type"] = "pubmed"
     clinical_trials_df["article_type"] = "clinical_trials"
+    
     clinical_trials_df = clinical_trials_df.rename(
         columns={"scientific_title": "title", "date": "date_mention"}
     )
@@ -113,7 +141,7 @@ def generate_mentions_dict(drugs_df, pubmed_df, clinical_trials_df):
     return merge_dicts(pubmed_mentions, clinical_trials_mentions)
 
 
-def print_max_journal_distinct_drugs(filepath):
+def print_max_journal_distinct_drugs(filepath, output_filepath):
     """
     Prints the journal that mentions the most distinct drugs.
 
@@ -130,14 +158,16 @@ def print_max_journal_distinct_drugs(filepath):
     for drug, info in data.items():
         for entry in info["journal"]:
             journal_counts[entry["journal"]].add(drug)
+    max_drug_quoted = len(max(journal_counts.items(), key=lambda x: len(x[1]))[1])
+    journal_with_max_drug_quoted = [journal[0] for journal in journal_counts.items() if len(journal[1]) == max_drug_quoted]
+    print(f"The journal that mentions the most different drug(s) is/are : {journal_with_max_drug_quoted} with {max_drug_quoted} drugs quoted.")
 
-    max_journal = max(journal_counts.items(), key=lambda x: len(x[1]))
-
-    print(
-        f"Le journal qui mentionne le plus de médicaments différents est : '{max_journal[0]}'."
-    )
+    f = open(output_filepath, "w")
+    f.write(f"The journal that mentions the most different drug(s) is/are : {journal_with_max_drug_quoted} with {max_drug_quoted} drugs quoted.")
+    f.close()
+    
 
 
 if __name__ == "__main__":
     start_pipeline()
-    print_max_journal_distinct_drugs("src/result/drug_mentions_graph.json")
+    print_max_journal_distinct_drugs("src/result/drug_mentions_graph.json", "src/result/journal_max_drug_quoted.txt")
