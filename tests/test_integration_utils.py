@@ -4,6 +4,7 @@ import pandas as pd
 from io import StringIO
 from src.main import start_pipeline, print_max_journal_distinct_drugs
 
+
 class TestPipeline(unittest.TestCase):
 
     def setUp(self):
@@ -45,14 +46,6 @@ class TestPipeline(unittest.TestCase):
                 "code": "b01ac06",
                 "pubmed": [
                     {
-                        "publication_id": 1,
-                        "title": "aspirin effects",
-                        "date_mention": "2022-01-01",
-                        "journal": "journal of medicine",
-                    }
-                ],
-                "clinical_trials": [
-                    {
                         "publication_id": 3,
                         "title": "aspirin trial",
                         "date_mention": "2022-03-01",
@@ -60,24 +53,24 @@ class TestPipeline(unittest.TestCase):
                     }
                 ],
                 "journal": [
-                    {"date_mention": "2022-01-01", "journal": "journal of medicine"},
                     {
                         "date_mention": "2022-03-01",
                         "journal": "clinical trials journal",
                     },
+                    {"date_mention": "2022-01-01", "journal": "journal of medicine"},
+                ],
+                "clinical_trials": [
+                    {
+                        "publication_id": 1,
+                        "title": "aspirin effects",
+                        "date_mention": "2022-01-01",
+                        "journal": "journal of medicine",
+                    }
                 ],
             },
             "paracetamol": {
                 "code": "n02be01",
                 "pubmed": [
-                    {
-                        "publication_id": 2,
-                        "title": "paracetamol usage",
-                        "date_mention": "2022-02-01",
-                        "journal": "pharmaceutical journal",
-                    }
-                ],
-                "clinical_trials": [
                     {
                         "publication_id": 4,
                         "title": "paracetamol study",
@@ -86,8 +79,16 @@ class TestPipeline(unittest.TestCase):
                     }
                 ],
                 "journal": [
-                    {"date_mention": "2022-02-01", "journal": "pharmaceutical journal"},
                     {"date_mention": "2022-04-01", "journal": "medical research"},
+                    {"date_mention": "2022-02-01", "journal": "pharmaceutical journal"},
+                ],
+                "clinical_trials": [
+                    {
+                        "publication_id": 2,
+                        "title": "paracetamol usage",
+                        "date_mention": "2022-02-01",
+                        "journal": "pharmaceutical journal",
+                    }
                 ],
             },
         }
@@ -122,7 +123,9 @@ class TestPipeline(unittest.TestCase):
     )
     def test_print_max_journal_distinct_drugs(self, mock_file):
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            print_max_journal_distinct_drugs("src/result/drug_mentions_graph.json")
+            print_max_journal_distinct_drugs(
+                "src/result/drug_mentions_graph.json", "journal_max_drug_quoted.txt"
+            )
             self.assertIn("Journal B", mock_stdout.getvalue())
 
 

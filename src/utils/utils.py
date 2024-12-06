@@ -49,7 +49,7 @@ def concat_dataframes(dataframes, reset_index=True):
     """
     if not dataframes:
         raise ValueError("The list of DataFrames is empty.")
-    
+
     concatenated_df = pd.concat(dataframes, ignore_index=reset_index)
     return concatenated_df
 
@@ -109,7 +109,7 @@ def format_date(df, column):
     Returns:
         pd.DataFrame: The DataFrame with the formatted date column.
     """
-    df[column] = pd.to_datetime(df[column], format="mixed") #.astype(str)
+    df[column] = pd.to_datetime(df[column], format="mixed").astype(str)
     return df
 
 
@@ -224,7 +224,8 @@ def merge_dicts(dict1, dict2):
     merged_dict = dict1.copy()
 
     for key, value in dict2.items():
-        merged_dict[key]["clinical_trials"] = value["clinical_trials"]
+        if "clinical_trials" in value:
+            merged_dict[key]["clinical_trials"] = value["clinical_trials"]
         combined_journal = merged_dict[key]["journal"] + value["journal"]
         unique_journal = []
         seen = set()

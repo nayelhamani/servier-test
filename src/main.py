@@ -17,8 +17,8 @@ from utils.utils import (
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s', 
-    datefmt='%Y-%m-%d %H:%M:%S' 
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 
 # Utilisation du logger
@@ -79,7 +79,6 @@ def dfs_from_files():
     return drugs_df, pubmed_df, clinical_trials_df
 
 
-
 def normalize_dfs(drugs_df, pubmed_df, clinical_trials_df):
     """
     Normalizes the DataFrames by applying transformations to the columns.
@@ -104,7 +103,7 @@ def normalize_dfs(drugs_df, pubmed_df, clinical_trials_df):
 
     pubmed_df["article_type"] = "pubmed"
     clinical_trials_df["article_type"] = "clinical_trials"
-    
+
     clinical_trials_df = clinical_trials_df.rename(
         columns={"scientific_title": "title", "date": "date_mention"}
     )
@@ -159,15 +158,24 @@ def print_max_journal_distinct_drugs(filepath, output_filepath):
         for entry in info["journal"]:
             journal_counts[entry["journal"]].add(drug)
     max_drug_quoted = len(max(journal_counts.items(), key=lambda x: len(x[1]))[1])
-    journal_with_max_drug_quoted = [journal[0] for journal in journal_counts.items() if len(journal[1]) == max_drug_quoted]
-    print(f"The journal that mentions the most different drug(s) is/are : {journal_with_max_drug_quoted} with {max_drug_quoted} drugs quoted.")
+    journal_with_max_drug_quoted = [
+        journal[0]
+        for journal in journal_counts.items()
+        if len(journal[1]) == max_drug_quoted
+    ]
+    print(
+        f"The journal that mentions the most different drug(s) is/are : {journal_with_max_drug_quoted} with {max_drug_quoted} drugs quoted."
+    )
 
     f = open(output_filepath, "w")
-    f.write(f"The journal that mentions the most different drug(s) is/are : {journal_with_max_drug_quoted} with {max_drug_quoted} drugs quoted.")
+    f.write(
+        f"The journal that mentions the most different drug(s) is/are : {journal_with_max_drug_quoted} with {max_drug_quoted} drugs quoted."
+    )
     f.close()
-    
 
 
 if __name__ == "__main__":
     start_pipeline()
-    print_max_journal_distinct_drugs("src/result/drug_mentions_graph.json", "src/result/journal_max_drug_quoted.txt")
+    print_max_journal_distinct_drugs(
+        "src/result/drug_mentions_graph.json", "src/result/journal_max_drug_quoted.txt"
+    )

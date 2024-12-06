@@ -45,18 +45,14 @@ class TestPipelineUnitFunctions(unittest.TestCase):
 
     def test_concat_multiple_dataframes(self):
         # Create sample DataFrames
-        df1 = pd.DataFrame({'A': [1, 2], 'B': [3, 4]})
-        df2 = pd.DataFrame({'A': [5, 6], 'B': [7, 8]})
-        df3 = pd.DataFrame({'A': [9, 10], 'B': [11, 12]})
+        df1 = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
+        df2 = pd.DataFrame({"A": [5, 6], "B": [7, 8]})
+        df3 = pd.DataFrame({"A": [9, 10], "B": [11, 12]})
 
         # Expected output
-        expected = pd.DataFrame({
-            'A': [1, 2, 5, 6, 9, 10],
-            'B': [3, 4, 7, 8, 11, 12]
-        })
+        expected = pd.DataFrame({"A": [1, 2, 5, 6, 9, 10], "B": [3, 4, 7, 8, 11, 12]})
         result = concat_dataframes([df1, df2, df3])
         pd.testing.assert_frame_equal(result, expected)
-
 
     def test_lower_strip_df(self):
         # Test lower_strip_df behavior

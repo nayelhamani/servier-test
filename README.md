@@ -8,6 +8,8 @@ This Python project builds a pipeline that reads, normalizes, and consolidates d
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [SQL queries](#sql-queries)
+- [To go further](#to-go-further)
 - [Running Tests](#running-tests)
 - [Formatting and Linting](#formatting-and-linting)
 - [Project Structure](#project-structure)
@@ -52,13 +54,31 @@ This Python project builds a pipeline that reads, normalizes, and consolidates d
    python src/main.py
    ```
 
-   This will generate a `drug_mentions_graph.json` file in src/result with the results of the pipeline.
+   This will generate `drug_mentions_graph.json` and `journal_max_drug_quoted.txt` in src/result with the results of the pipeline and ad-hoc processing.
 
 ### Main Features
 
 - **Start Pipeline:** The `start_pipeline()` function loads the CSV and JSON data, normalizes it, and writes the results to a JSON file.
 - **Data Normalization:** Functions to format dates, remove unwanted characters, and standardize text.
 - **Drug Mentions Extraction:** The pipeline identifies mentions of drugs in PubMed articles and clinical trials, and consolidates these mentions into a JSON file.
+
+# SQL Queries
+
+SQl queries can be found in the sql folder.
+
+# To go further
+*What factors should be considered to adapt your code to handle large data volumes (e.g., files of several terabytes or millions of files)?*
+
+The factors to consider are my needs and constraints. If my data volume increases, what are the impacts on my ingestion process? Are there time constraints? If the data needs to be available quickly, I will need to enhance my pipeline to speed up processing. Are there cost constraints? Should I move toward an infrastructure that is the most efficient or cost-effective? All this while ensuring the infrastructure remains maintainable to minimize technical debt. Lastly, we can also consider technological constraints, such as on-premise or cloud infrastructure, which will guide my choice of solution.
+
+*Could you describe the modifications that would need to be made, if any, to account for such volumes?*
+
+The improvement paths to handle larger data volumes are as follows:
+
+Use file formats better suited for large data volumes (e.g., Parquet, Avro, ORC).
+Leverage a parallel processing framework to improve performance, such as rewriting the code as a Spark job.
+Containerize the code using Docker and use Kubernetes to automate scalability.
+More broadly, adopt serverless services in the cloud to ensure scalability.
 
 ## Running Tests
 
@@ -100,6 +120,7 @@ flake8 .
 ```bash
 .
 ├── README.md                   # Project documentation
+├── sql/                        # SQL folder
 ├── src/
 │   ├── result/                 # Result folder
 │   ├── utils/
