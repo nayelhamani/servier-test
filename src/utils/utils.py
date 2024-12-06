@@ -14,7 +14,7 @@ class TimestampEncoder(json.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, datetime):
-            return obj.strftime("%Y-%m-%d")  # Convert to string
+            return obj.strftime("%Y-%m-%d")
         return super().default(obj)
 
 
@@ -123,19 +123,15 @@ def consolidate_clinical_trials_df(df):
     Returns:
         pd.DataFrame: A consolidated DataFrame with merged rows.
     """
-    # Fusionner les lignes ayant un 'title' en commun
     df_grouped = df.groupby(
         ["title", "date_mention", "article_type"], as_index=False
     ).agg(
         {
-            "id": "first",  # Combiner les IDs non vides
-            "journal": "first",  # Combiner les journaux non vides
+            "id": "first",
+            "journal": "first",
         }
     )
-
-    # Réinitialiser l'index
     df_grouped.reset_index(drop=True, inplace=True)
-    # Afficher le DataFrame nettoyé et fusionné
     return df_grouped
 
 

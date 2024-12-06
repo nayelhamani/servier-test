@@ -21,7 +21,6 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-# Utilisation du logger
 logger = logging.getLogger(__name__)
 
 RESOURCE_FOLDER = "resources"

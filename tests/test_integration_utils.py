@@ -8,7 +8,6 @@ from src.main import start_pipeline, print_max_journal_distinct_drugs
 class TestPipeline(unittest.TestCase):
 
     def setUp(self):
-        # Sample dataframes to return when CSVs/JSON are read
         self.drugs_df = pd.DataFrame(
             {"drug": ["Aspirin", "Paracetamol"], "atccode": ["B01AC06", "N02BE01"]}
         )
@@ -40,7 +39,6 @@ class TestPipeline(unittest.TestCase):
             }
         )
 
-        # Expected output dictionary after pipeline processing
         self.expected_mentions_dict = {
             "aspirin": {
                 "code": "b01ac06",
@@ -99,7 +97,6 @@ class TestPipeline(unittest.TestCase):
     def test_start_pipeline(
         self, mock_write_dict_to_json, mock_json_to_df, mock_read_csv
     ):
-        # Mock the CSV and JSON reading
         mock_read_csv.side_effect = [
             self.drugs_df,
             self.pubmed_df,
@@ -107,10 +104,8 @@ class TestPipeline(unittest.TestCase):
         ]
         mock_json_to_df.return_value = self.pubmed_json_df
 
-        # Call the start_pipeline function
         start_pipeline()
 
-        # Verify that the write_dict_to_json was called with the expected dictionary
         mock_write_dict_to_json.assert_called_once_with(
             self.expected_mentions_dict, "src/result/drug_mentions_graph.json"
         )
