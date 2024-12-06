@@ -1,0 +1,1 @@
+The journal that mentions the most different drug(s) is/are : ['journal of emergency nursing', 'psychopharmacology'] with 2 drugs quoted.
